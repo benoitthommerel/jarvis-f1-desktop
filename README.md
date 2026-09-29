@@ -1,38 +1,36 @@
 # JARVIS F1 Desktop
 
-Version fiable de l'application native multi-mode. Elle n'ouvre pas un navigateur : PyQt5 affiche le HUD dans une fenêtre desktop.
+Version desktop native multi-mode. La télémétrie F1 25 est écoutée sur UDP `20777`.
 
 ## Installation
 
 ### Windows
-Double-cliquer sur `installer_windows.bat`.
+Double-cliquez sur `installer_windows.bat`.
 
-### macOS / Linux
+### macOS/Linux
 ```bash
 chmod +x installer_unix.sh
 ./installer_unix.sh
 ```
 
-Python 3.9+ est requis. Le script crée un environnement `.venv` et installe les dépendances sans modifier l'installation globale de Python.
+Si vous utilisez Ubuntu/Debian et que Qt WebEngine ne démarre pas, installez également:
+```bash
+sudo apt install python3-pyqt5 python3-pyqt5.qtwebengine
+```
 
-## Modes
+## Utilisation
 
-- Normal / Dev
-- F1 Engineer
-- Discrete
-- Background
-- Architect
-- Crisis Diagnostic
-- Executive
+Choisissez un mode dans la liste supérieure. Chaque mode charge un HUD indépendant. `F1 Engineer` affiche l'état du listener UDP et les métadonnées des paquets reçus.
 
-Le sélecteur en haut de la fenêtre recharge un HUD différent pour chaque mode. Le mode F1 écoute les paquets UDP sur `0.0.0.0:20777` et indique le nombre de paquets reçus. Le décodage détaillé dépend du format/version du jeu et sera ajouté dans un adaptateur dédié.
+Dans F1 25, activez la télémétrie UDP et configurez l'adresse IP de cette machine avec le port `20777`. Le format de télémétrie doit être `2025`.
 
-## Configuration IA
-
-Le bouton `AI CONFIG` permet de définir le fournisseur, une clé principale, des clés de secours et le routage. La configuration est enregistrée dans `~/.jarvis-f1/config.json`; les clés ne sont jamais injectées dans le HTML du dashboard. Ne partage jamais ce fichier.
+Le header F1 25 est décodé (format, version, ID paquet, session, frame et index voiture). Les payloads complets restent version-dépendants; l'application ne fabrique pas de valeurs lorsqu'un champ réel n'est pas disponible.
 
 ## Dépannage
 
-- Si Qt ne démarre pas sous Linux, installe les bibliothèques système Qt/WebEngine de ta distribution.
-- Si le port 20777 est occupé, ferme l'autre écouteur ou modifie le port dans `app.py`.
-- Le jeu doit être configuré pour envoyer la télémétrie UDP vers l'adresse de la machine et le port `20777`.
+- `ModuleNotFoundError: PyQt5`: relancez l'installateur depuis le dossier du projet.
+- `UDP ERROR: Address already in use`: fermez une autre application utilisant 20777.
+- `UDP waiting`: vérifiez que le jeu envoie vers la bonne IP et que le pare-feu autorise UDP entrant.
+- Sous Windows, autorisez Python dans le pare-feu lors de la première exécution.
+
+Les clés API sont stockées localement dans `~/.jarvis-f1/config.json`. Ne transmettez jamais ce fichier.
